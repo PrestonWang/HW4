@@ -12,7 +12,6 @@
 static unsigned char video_buffer[SIZE+1] = {0};          // buffer for sending over i2c. The first byte allows us to store the control character
 static unsigned char * gddram = video_buffer + 1;   // actual video ram. write pixels to gddram
 
-
 void display_command(unsigned char cmd) { // write a command to the display
   unsigned char to_write[] = {0x00,cmd};  // first byte is 0 (CO = 0, DC = 0), second byte is the command
   i2c_write_read(DISPLAY_ADDR, to_write,2, NULL, 0); 
