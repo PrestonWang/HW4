@@ -216,15 +216,15 @@ int main() {
     int col;
     // main loop
     while (1) {
-    row = 28;
-    col = 32;
+    row = 32;
+    col = 28;
     sprintf(message,"Hello world 1337!");
     while(message[m]){
         for(j = 0; j<= 4; j = j+1,col = col + 1){
             a = ASCII[message[m] - 0x20][j];
             for(i = 0; i <= 7; i = i+1)
             {
-            display_pixel_set(row-i,col,(a << i)&0x80);
+            display_pixel_set(row,col,(a << i)&0x80);
             }
         }
         m = m+1;
