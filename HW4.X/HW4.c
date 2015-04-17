@@ -3,6 +3,7 @@
 #include<sys/attribs.h> // __ISR macro
 #include"i2c_display.h"
 #include"i2c_master_int.h"
+#include"stdio.h"
 
 // DEVCFGs here
 
@@ -41,8 +42,6 @@
 #pragma config FUSBIDIO = ON // USB pins controlled by USB module
 #pragma config FVBUSONIO = ON // controlled by USB module
 
-int readADC(void);
-
 int main() {
 
     // startup
@@ -74,37 +73,15 @@ int main() {
     INT4Rbits.INT4R = 0b0100;
 
     // set up LED1 pin as a digital output
-
-    ANSELBbits.ANSB14 = 0;
-    TRISBbits.TRISB14 = 0;
-    //RPB14Rbits.RPB14R = 0b0001;
-    LATBbits.LATB14 = 1;
-
-
-    // set up LED2 as OC1 using Timer2 at 1kHz
     ANSELBbits.ANSB15 = 0;
     TRISBbits.TRISB15 = 0;
-    RPB15Rbits.RPB15R = 0b0101;
-
-    T2CONbits.T32 = 0;
-    T2CONbits.TCS = 0;
-    T2CONbits.TGATE = 0;
-    T2CONbits.TCKPS = 0b100;
-    PR2 = 4999;
-    TMR2 = 0;
-    T2CONbits.ON = 1;
-    OC1CONbits.OCM = 0b110;
-    OC1RS = 2500; // 50% duty cycle
-    OC1R = 2500;
-    OC1CONbits.ON = 1;
-
-    // set up A0 as AN0
-    ANSELAbits.ANSA0 = 1;
-    AD1CON3bits.ADCS = 3;
-    AD1CHSbits.CH0SA = 0;
-    AD1CON1bits.ADON = 1;
-
+    LATBbits.LATB15 = 1;
+    int d = 0;
+    while(d < 2000000){
+    d = d+1;
+    }
     // initializing variables
+
     // lookup table for all of the ascii characters
     static const char ASCII[96][5] = {
     {0x00, 0x00, 0x00, 0x00, 0x00} // 20  (space)
@@ -204,7 +181,9 @@ int main() {
     ,{0x10, 0x08, 0x08, 0x10, 0x08} // 7e ?
     ,{0x00, 0x06, 0x09, 0x09, 0x06} // 7f ?
     }; // end char ASCII[96][5]
+
     // Initializing Display
+
     i2c_master_setup();
     display_init();
     char a;
@@ -224,7 +203,7 @@ int main() {
             a = ASCII[message[m] - 0x20][j];
             for(i = 0; i <= 7; i = i+1)
             {
-            display_pixel_set(row,col,(a << i)&0x80);
+            display_pixel_set(row -i,col,(a << i)&0x80);
             }
         }
         m = m+1;
@@ -233,22 +212,4 @@ int main() {
     m = 0;
 
 }
-}
-
-int readADC(void) {
-    int elapsed = 0;
-    int finishtime = 0;
-    int sampletime = 20;
-    int a = 0;
-
-    AD1CON1bits.SAMP = 1;
-    elapsed = _CP0_GET_COUNT();
-    finishtime = elapsed + sampletime;
-    while (_CP0_GET_COUNT() < finishtime) {
-    }
-    AD1CON1bits.SAMP = 0;
-    while (!AD1CON1bits.DONE) {
-    }
-    a = ADC1BUF0;
-    return a;
 }
